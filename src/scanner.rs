@@ -1,5 +1,8 @@
 mod ast;
+mod extractors;
 mod heuristics;
+mod role_mapper;
+mod scorer;
 mod types;
 
 use std::fs;
