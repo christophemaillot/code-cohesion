@@ -3,9 +3,9 @@ use anyhow::{Context, Result, bail};
 use crate::code_reader::CodeReader;
 use crate::scanner::ScanReport;
 
-use super::client::{LlmClient, LlmConfig};
+use super::client::LlmClient;
 use super::tools::{run_tool, tools_schema};
-use super::types::Message;
+use super::types::{LlmConfig, Message};
 
 pub async fn analyze_with_llm(
     report: &ScanReport,

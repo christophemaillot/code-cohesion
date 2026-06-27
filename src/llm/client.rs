@@ -3,14 +3,7 @@ use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use serde::Deserialize;
 use serde_json::{Value, json};
 
-use super::types::Message;
-
-#[derive(Debug, Clone)]
-pub struct LlmConfig {
-    pub api_key: String,
-    pub base_url: String,
-    pub model: String,
-}
+use super::types::{LlmConfig, Message};
 
 #[derive(Debug, Clone)]
 pub struct LlmClient {

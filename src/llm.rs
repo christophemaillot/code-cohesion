@@ -4,4 +4,4 @@ mod tools;
 mod types;
 
 pub use agent::analyze_with_llm;
-pub use client::LlmConfig;
+pub use types::LlmConfig;

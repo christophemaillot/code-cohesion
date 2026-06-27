@@ -72,10 +72,11 @@ Currently supported:
 - JavaScript
 - JSX
 - Python
+- Kotlin
 
 Planned:
 
-- Kotlin
+- More language-specific AST signals for the supported languages
 
 Unsupported files are skipped for now. That is deliberate: a shallow,
 overconfident analysis across every extension would be worse than a narrower

@@ -11,6 +11,7 @@ pub enum SupportedLanguage {
     JavaScript,
     Jsx,
     Python,
+    Kotlin,
 }
 
 impl SupportedLanguage {
@@ -22,6 +23,7 @@ impl SupportedLanguage {
             Some("js") => Some(Self::JavaScript),
             Some("jsx") => Some(Self::Jsx),
             Some("py") => Some(Self::Python),
+            Some("kt" | "kts") => Some(Self::Kotlin),
             _ => None,
         }
     }

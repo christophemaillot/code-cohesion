@@ -30,6 +30,7 @@ fn tree_sitter_language(language: SupportedLanguage) -> tree_sitter::Language {
             tree_sitter_javascript::LANGUAGE.into()
         }
         SupportedLanguage::Python => tree_sitter_python::LANGUAGE.into(),
+        SupportedLanguage::Kotlin => tree_sitter_kotlin_ng::LANGUAGE.into(),
     }
 }
 
@@ -57,6 +58,7 @@ fn symbol_for_node(language: SupportedLanguage, node: Node<'_>, source: &[u8]) -
         | SupportedLanguage::JavaScript
         | SupportedLanguage::Jsx => js_like_symbol(node, source),
         SupportedLanguage::Python => python_symbol(node, source),
+        SupportedLanguage::Kotlin => kotlin_symbol(node, source),
     }
 }
 
@@ -126,6 +128,19 @@ fn python_symbol(node: Node<'_>, source: &[u8]) -> Option<String> {
         .map(|name| format!("{label} {name}"))
 }
 
+fn kotlin_symbol(node: Node<'_>, source: &[u8]) -> Option<String> {
+    let label = match node.kind() {
+        "class_declaration" => "class",
+        "function_declaration" => "fun",
+        "object_declaration" => "object",
+        _ => return None,
+    };
+
+    node.child_by_field_name("name")
+        .and_then(|name| node_text(name, source))
+        .map(|name| format!("{label} {name}"))
+}
+
 fn node_text(node: Node<'_>, source: &[u8]) -> Option<String> {
     node.utf8_text(source).ok().map(str::to_string)
 }
@@ -155,5 +170,17 @@ mod tests {
         assert!(symbols.contains(&"class User".to_string()));
         assert!(symbols.contains(&"function loadUser".to_string()));
         assert!(symbols.contains(&"const state".to_string()));
+    }
+
+    #[test]
+    fn extracts_kotlin_symbols_from_ast() {
+        let symbols = extract_symbols(
+            SupportedLanguage::Kotlin,
+            "class User\nobject Users\nfun loadUser(): User = User()",
+        );
+
+        assert!(symbols.contains(&"class User".to_string()));
+        assert!(symbols.contains(&"object Users".to_string()));
+        assert!(symbols.contains(&"fun loadUser".to_string()));
     }
 }
