@@ -4,20 +4,24 @@ use std::path::Path;
 use anyhow::Result;
 
 use crate::code_reader::normalize_path;
+use crate::language::SupportedLanguage;
 
+use super::ast;
 use super::{FileFinding, Role, Suspicion};
 
 pub(crate) fn analyze_file(root: &Path, path: &Path, content: &str) -> Result<FileFinding> {
     let rel = path.strip_prefix(root)?;
     let normalized = normalize_path(rel);
+    let language = SupportedLanguage::from_path(path).expect("scanner filters supported languages");
     let lines = content.lines().count();
     let imports = extract_imports(content);
-    let symbols = extract_symbols(content);
+    let symbols = ast::extract_symbols(language, content);
     let likely_roles = infer_roles(&normalized, content, &imports);
     let (suspicion, reasons) = suspicion_for(lines, &imports, &symbols, &likely_roles);
 
     Ok(FileFinding {
         path: normalized,
+        language,
         lines,
         imports,
         symbols,
@@ -40,40 +44,6 @@ fn extract_imports(content: &str) -> Vec<String> {
         })
         .take(80)
         .map(|line| line.trim_end_matches(';').to_string())
-        .collect()
-}
-
-fn extract_symbols(content: &str) -> Vec<String> {
-    content
-        .lines()
-        .map(str::trim)
-        .filter_map(|line| {
-            for prefix in [
-                "pub fn ",
-                "fn ",
-                "pub struct ",
-                "struct ",
-                "pub enum ",
-                "enum ",
-                "class ",
-                "export function ",
-                "function ",
-                "export const ",
-                "const ",
-            ] {
-                if let Some(rest) = line.strip_prefix(prefix) {
-                    let name = rest
-                        .split(|ch: char| !ch.is_alphanumeric() && ch != '_')
-                        .next()
-                        .unwrap_or_default();
-                    if !name.is_empty() {
-                        return Some(format!("{} {}", prefix.trim_end(), name));
-                    }
-                }
-            }
-            None
-        })
-        .take(120)
         .collect()
 }
 

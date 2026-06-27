@@ -47,6 +47,7 @@ able to criticize its own structure before it quietly turns into a pile.
 Current capabilities:
 
 - scan local source files;
+- parse supported source files with tree-sitter;
 - emit a structured JSON report;
 - emit a compact Markdown report;
 - call an OpenAI-compatible LLM;
@@ -54,8 +55,31 @@ Current capabilities:
 - require the LLM to inspect at least one source file before producing final
   advice.
 
-The next milestone is to replace text heuristics with AST/tree-sitter based
-signals, then use the tool on itself as the first public improvement loop.
+The current AST support is still early: it extracts structural symbols with
+tree-sitter, while role inference remains heuristic. The next milestone is to
+derive richer signals from the AST and dependency graph instead of relying on
+keyword matches.
+
+## Language Support
+
+`code-cohesion` is intentionally conservative about language support.
+
+Currently supported:
+
+- Rust
+- TypeScript
+- TSX
+- JavaScript
+- JSX
+- Python
+
+Planned:
+
+- Kotlin
+
+Unsupported files are skipped for now. That is deliberate: a shallow,
+overconfident analysis across every extension would be worse than a narrower
+analysis that knows what it can parse.
 
 ## Usage
 

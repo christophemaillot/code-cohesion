@@ -1,4 +1,5 @@
 mod code_reader;
+mod language;
 mod llm;
 mod scanner;
 

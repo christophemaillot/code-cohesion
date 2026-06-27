@@ -1,3 +1,4 @@
+mod ast;
 mod heuristics;
 mod types;
 
@@ -7,6 +8,7 @@ use std::path::Path;
 use anyhow::{Context, Result};
 use walkdir::WalkDir;
 
+use crate::language::SupportedLanguage;
 use heuristics::analyze_file;
 pub use types::{FileFinding, Role, ScanReport, Suspicion};
 
@@ -22,7 +24,7 @@ pub fn scan(root: impl AsRef<Path>) -> Result<ScanReport> {
         .into_iter()
         .filter_entry(|entry| !is_ignored(entry.path()))
         .filter_map(Result::ok)
-        .filter(|entry| entry.file_type().is_file() && is_source_file(entry.path()))
+        .filter(|entry| entry.file_type().is_file() && is_supported_source(entry.path()))
     {
         let path = entry.path().to_path_buf();
         let content =
@@ -44,15 +46,8 @@ pub fn scan(root: impl AsRef<Path>) -> Result<ScanReport> {
     })
 }
 
-fn is_source_file(path: &Path) -> bool {
-    path.extension()
-        .and_then(|ext| ext.to_str())
-        .is_some_and(|ext| {
-            matches!(
-                ext,
-                "rs" | "ts" | "tsx" | "js" | "jsx" | "py" | "go" | "java" | "kt" | "swift" | "rb"
-            )
-        })
+fn is_supported_source(path: &Path) -> bool {
+    SupportedLanguage::from_path(path).is_some()
 }
 
 fn is_ignored(path: &Path) -> bool {

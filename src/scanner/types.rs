@@ -1,5 +1,7 @@
 use serde::Serialize;
 
+use crate::language::SupportedLanguage;
+
 #[derive(Debug, Clone, Serialize)]
 pub struct ScanReport {
     pub root: String,
@@ -10,6 +12,7 @@ pub struct ScanReport {
 #[derive(Debug, Clone, Serialize)]
 pub struct FileFinding {
     pub path: String,
+    pub language: SupportedLanguage,
     pub lines: usize,
     pub imports: Vec<String>,
     pub symbols: Vec<String>,
